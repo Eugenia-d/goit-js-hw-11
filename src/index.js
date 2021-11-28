@@ -57,7 +57,8 @@ const onImagesReceived = images => {
     .map(image => {
       return ` <div class="photo-card">
         <a href="${image.largeImageURL}">
-           <img src="${image.previewURL}" alt="${image.tags}" loading="lazy" width="250" height="150"/>
+           <img class="img" src="${image.previewURL}" alt="${image.tags}" loading="lazy"  width="250
+           " height="150"/>
     <div class="info">
       <p class="info-item">
         <b>Likes</b> ${image.likes}

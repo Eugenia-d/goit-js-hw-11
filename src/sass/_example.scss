@@ -86,6 +86,10 @@ a {
   box-shadow: 3px 3px 5px 1px rgba(58, 97, 137, 0.2);
 }
 
+.img {
+  object-fit: cover;
+}
+
 .info {
   padding: 10px;
   display: flex;
