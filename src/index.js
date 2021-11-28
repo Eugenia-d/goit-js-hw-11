@@ -1,23 +1,34 @@
 import './sass/main.scss';
-import { getImages } from './js/imgAPI';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+import { getImages, PAGE_SIZE } from './js/imgAPI';
+import { Notify } from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
 
 const input = document.querySelector('.input');
-const btn = document.querySelector('.btn');
 const btnLoadMore = document.querySelector('.load-more');
 const gallery = document.querySelector('.gallery');
+const form = document.getElementById('search-form');
+
 btnLoadMore.hidden = true;
+const lightBox = new SimpleLightbox('.gallery a', {
+  captions: true,
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 
 let query = null;
 let pageNumber = 1;
+let totalHits = 0;
 
 const makeRequest = async () => {
   const images = await getImages(query, pageNumber);
   onImagesReceived(images);
 };
 
-btn.addEventListener('click', async e => {
+form.addEventListener('submit', async e => {
   e.preventDefault();
   query = input.value;
+  pageNumber = 1;
   gallery.innerHTML = '';
   btnLoadMore.hidden = true;
 
@@ -28,7 +39,20 @@ btnLoadMore.addEventListener('click', makeRequest);
 
 const onImagesReceived = images => {
   console.log(images);
+
   pageNumber += 1;
+  totalHits = images.data.totalHits;
+  if (totalHits === 0) {
+    Notify.warning('Sorry, there are no images matching your search query. Please try again.');
+    btnLoadMore.hidden = true;
+  } else if (pageNumber * PAGE_SIZE >= totalHits) {
+    btnLoadMore.hidden = true;
+    Notify.info("We're sorry, but you've reached the end of search results.");
+  } else {
+    Notify.success(`Hooray! We found ${totalHits} images.`);
+    btnLoadMore.hidden = false;
+  }
+
   const elements = images.data.hits
     .map(image => {
       return ` <div class="photo-card">
@@ -53,5 +77,5 @@ const onImagesReceived = images => {
     .join('');
 
   gallery.insertAdjacentHTML('beforeend', elements);
-  btnLoadMore.hidden = false;
+  lightBox.refresh();
 };

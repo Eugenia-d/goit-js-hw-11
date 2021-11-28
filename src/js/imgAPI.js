@@ -1,6 +1,6 @@
 const API_KEY = '24558958-a01582c8f081cdc4521b20935';
 const API_URL = 'https://pixabay.com/api/';
-const PAGE_SIZE = 40;
+export const PAGE_SIZE = 40;
 
 import { get } from 'axios';
 
