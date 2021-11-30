@@ -21,11 +21,15 @@ let pageNumber = 1;
 let totalHits = 0;
 
 const makeRequest = async () => {
-  const images = await getImages(query, pageNumber);
-  onImagesReceived(images);
+  try {
+    const images = await getImages(query, pageNumber);
+    onImagesReceived(images);
+  } catch (error) {
+    Notify.warning('Oops, something wrong happened.');
+  }
 };
 
-form.addEventListener('submit', async e => {
+form.addEventListener('submit', e => {
   e.preventDefault();
   query = input.value;
   pageNumber = 1;
@@ -39,7 +43,7 @@ btnLoadMore.addEventListener('click', makeRequest);
 
 const onImagesReceived = images => {
   console.log(images);
-
+  const isFirstPage = !gallery.firstElementChild;
   pageNumber += 1;
   totalHits = images.data.totalHits;
   if (totalHits === 0) {
@@ -48,7 +52,7 @@ const onImagesReceived = images => {
   } else if (pageNumber * PAGE_SIZE >= totalHits) {
     btnLoadMore.hidden = true;
     Notify.info("We're sorry, but you've reached the end of search results.");
-  } else {
+  } else if (isFirstPage) {
     Notify.success(`Hooray! We found ${totalHits} images.`);
     btnLoadMore.hidden = false;
   }
@@ -79,4 +83,13 @@ const onImagesReceived = images => {
 
   gallery.insertAdjacentHTML('beforeend', elements);
   lightBox.refresh();
+
+  if (!isFirstPage) {
+    const { height: cardHeight } = gallery.firstElementChild.getBoundingClientRect();
+
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
+  }
 };
